@@ -33,7 +33,7 @@ video.active{opacity:1}
 @keyframes floatLoad{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 @keyframes dotPulse{0%,100%{opacity:.35;transform:scale(.8)}50%{opacity:1;transform:scale(1.15)}}
 @keyframes confettiLaunch{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(-900px) rotate(-720deg);opacity:0}}
-@keyframes gaPopIn{0%{transform:scale(0) rotate(-15deg);opacity:0}60%{transform:scale(1.2) rotate(5deg);opacity:1}100%{transform:scale(1) rotate(0deg);opacity:1}}
+@keyframes gaPopIn{0%{transform:scale(0) rotate(-15deg);opacity:0}60%{transform:scale(1.2) rotate(5deg);opacity:1}100%{transform:scale(1) rotate(0deg);opacity:1}}@keyframes gachaFlash{0%{opacity:1}50%{opacity:0.2}100%{opacity:1}}.rarity-badge{display:inline-block;font-size:10px;font-weight:800;border-radius:6px;padding:2px 6px;letter-spacing:1px;margin-bottom:4px}.rarity-N{background:#e5e7eb;color:#6b7280}.rarity-R{background:#bfdbfe;color:#1d4ed8}.rarity-SR{background:linear-gradient(90deg,#a78bfa,#6366f1);color:#fff}.rarity-SSR{background:linear-gradient(90deg,#fde68a,#f59e0b,#ef4444);color:#fff;animation:gachaFlash 0.8s ease-in-out 3}
 .room-pop{position:absolute;left:88px;bottom:92px;z-index:50;display:flex;gap:10px;opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .14s ease,transform .14s ease}
 .room-pop.show{opacity:1;pointer-events:auto;transform:translateY(0)}
 .room-pop button{width:92px;height:102px;border:0;border-radius:22px;background:rgba(255,255,255,.96);box-shadow:0 8px 20px rgba(0,0,0,.18);color:#5b3826;font-weight:900;font-size:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
@@ -659,9 +659,24 @@ function doGacha(cost){
   const available=(COLLECTION_DATA||[]).filter(function(c){return!obtained.has(c.id);});
   if(!available.length)return;
   const count=cost===50?Math.min(10,available.length):1;
-  const shuffled=available.slice().sort(function(){return Math.random()-0.5;});
+  const RARITY_RATES={N:60,R:25,SR:12,SSR:3};
+  function pickOneByRarity(pool){
+    var byRarity={N:[],R:[],SR:[],SSR:[]};
+    pool.forEach(function(c){var r=c.rarity||"N";if(byRarity[r])byRarity[r].push(c);});
+    var rand=Math.random()*100;var cum=0;var order=["SSR","SR","R","N"];
+    for(var i=0;i<order.length;i++){
+      cum+=RARITY_RATES[order[i]];
+      if(rand<cum){if(byRarity[order[i]].length)return byRarity[order[i]][Math.floor(Math.random()*byRarity[order[i]].length)];}}
+    return pool[Math.floor(Math.random()*pool.length)];
+  }
+  var remaining_pool=available.slice();
   const results=[];
-  for(let i=0;i<count;i++){if(shuffled[i]){results.push(shuffled[i]);gs.obtained.push(shuffled[i].id);}}
+  for(var i=0;i<count;i++){
+    if(!remaining_pool.length)break;
+    var item=pickOneByRarity(remaining_pool);
+    results.push(item);gs.obtained.push(item.id);
+    remaining_pool=remaining_pool.filter(function(c){return c.id!==item.id;});
+  }
   saveGachaState(gs);
   screen.classList.remove("show");
   showLoadingThen(function(){
@@ -682,9 +697,14 @@ function showGachaResult(results){
   document.querySelector(".nav").style.display="";
   const overlay=document.createElement("div");
   overlay.id="gachaResultOverlay";
-  overlay.style.cssText="position:fixed;inset:0;background:linear-gradient(160deg,rgba(255,220,240,0.97) 0%,rgba(230,220,255,0.97) 100%);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;";
+  overlay.style.cssText="position:fixed;inset:0;background:"+flashBg[topRarity]+";z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;";
+  var topRarity="N";var rarityOrder={SSR:4,SR:3,R:2,N:1};
+  results.forEach(function(r){if((rarityOrder[r.rarity||"N"]||1)>(rarityOrder[topRarity]||1))topRarity=r.rarity||"N";});
+  var flashBg={N:"rgba(245,245,255,0.98)",R:"rgba(219,234,254,0.98)",SR:"rgba(237,233,254,0.98)",SSR:"rgba(255,251,235,0.98)"};
+  var rarityLabel={N:"N",R:"R",SR:"SR",SSR:"SSR"};
   const imgs=results.map(function(r){
-    return "<div style=\"text-align:center;background:#fff;border-radius:20px;padding:10px 12px;box-shadow:0 6px 18px rgba(180,100,180,0.18)\"><img src=\""+r.img+"\" style=\"width:88px;height:88px;border-radius:14px;background:#f9f0ff;padding:4px;display:block\"><div style=\"color:#7c3aed;font-size:12px;font-weight:700;margin-top:6px\">"+r.name+"</div></div>";
+    var rarity=r.rarity||"N";
+    return "<div style=\"text-align:center;background:#fff;border-radius:20px;padding:10px 12px;box-shadow:0 6px 18px rgba(180,100,180,0.18)\"><span class=\"rarity-badge rarity-"+rarity+"\">"+rarityLabel[rarity]+"</span><img src=\""+r.img+"\" style=\"width:88px;height:88px;border-radius:14px;background:#f9f0ff;padding:4px;display:block\"><div style=\"color:#7c3aed;font-size:12px;font-weight:700;margin-top:6px\">"+r.name+"</div></div>";
   }).join("");
   overlay.innerHTML="<div style=\"font-size:42px;animation:gaPopIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both\">🎊</div><h2 style=\"color:#7c3aed;font-size:26px;font-weight:900;margin:0;letter-spacing:1px\">GET!</h2><div style=\"display:flex;flex-wrap:wrap;gap:14px;justify-content:center;max-width:340px\">"+imgs+"</div><button onclick=\"document.getElementById('gachaResultOverlay').remove();openScreen('collection')\" style=\"margin-top:4px;background:linear-gradient(135deg,#f47d83,#c084fc);color:#fff;border:0;border-radius:16px;padding:14px 32px;font-size:17px;font-weight:800;cursor:pointer;box-shadow:0 4px 14px rgba(192,132,252,0.4)\">コレクションを見る</button>";
   document.body.appendChild(overlay);
