@@ -610,10 +610,11 @@ function renderGachaScreen(){
   const today=new Date().toISOString().slice(0,10);
   const freeDone=gs.freeDate===today&&gs.freeDone;
   const obtained=gs.obtained.length;
-  const remaining=60-obtained;
+  const totalItems=(COLLECTION_DATA||[]).length;
+  const remaining=totalItems-obtained;
   let html="<div style=\"padding:12px;text-align:center\">";
   html+="<h2 style=\"margin-bottom:6px;font-size:20px;font-weight:800\">🎰 ガチャ</h2>";
-  html+="<p style=\"color:#7c3aed;font-size:13px;font-weight:700;margin-bottom:12px;background:#f5f3ff;border-radius:20px;padding:4px 14px;display:inline-block\">🎴 "+obtained+"/60 (残り "+remaining+" 種)</p>";
+  html+="<p style=\"color:#7c3aed;font-size:13px;font-weight:700;margin-bottom:12px;background:#f5f3ff;border-radius:20px;padding:4px 14px;display:inline-block\">🎴 "+obtained+"/"+totalItems+" (残り "+remaining+" 種)</p>";
   html+="<video autoplay loop muted playsinline style=\"display:block;opacity:1;position:relative;z-index:2;width:100%;border-radius:18px;max-height:220px;object-fit:cover;margin-bottom:12px;background:linear-gradient(135deg,#667eea,#764ba2)\"><source src=\"videos/gacha/idle.mp4\" type=\"video/mp4\"></video>";
   if(remaining===0){
     html+="<p style=\"font-size:18px;color:#f47d83;font-weight:700\">🎉 コンプリート！</p>";
@@ -684,7 +685,7 @@ function renderCollectionScreen(){
   const obtained=new Set(gs.obtained);
   let html="<div style=\"padding:12px\">";
   html+="<h2 style=\"text-align:center;margin-bottom:6px;font-size:20px;font-weight:800\">🧸 コレクション</h2>";
-  html+="<p style=\"text-align:center;color:#7c3aed;font-size:13px;font-weight:700;margin-bottom:12px;background:#f5f3ff;border-radius:20px;padding:4px 14px;display:inline-block\">"+obtained.size+"/60 種類</p>";
+  html+="<p style=\"text-align:center;color:#7c3aed;font-size:13px;font-weight:700;margin-bottom:12px;background:#f5f3ff;border-radius:20px;padding:4px 14px;display:inline-block\">"+obtained.size+"/"+(COLLECTION_DATA||[]).length+" 種類</p>";
   html+="<div style=\"display:grid;grid-template-columns:repeat(4,1fr);gap:8px\">";
   (COLLECTION_DATA||[]).forEach(function(item){
     if(obtained.has(item.id)){
