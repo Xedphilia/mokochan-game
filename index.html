@@ -695,13 +695,13 @@ function doGacha(cost){
 function showGachaResult(results){
   isGachaPlaying=false;
   document.querySelector(".nav").style.display="";
-  const overlay=document.createElement("div");
-  overlay.id="gachaResultOverlay";
-  overlay.style.cssText="position:fixed;inset:0;background:"+flashBg[topRarity]+";z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;";
   var topRarity="N";var rarityOrder={SSR:4,SR:3,R:2,N:1};
   results.forEach(function(r){if((rarityOrder[r.rarity||"N"]||1)>(rarityOrder[topRarity]||1))topRarity=r.rarity||"N";});
   var flashBg={N:"rgba(245,245,255,0.98)",R:"rgba(219,234,254,0.98)",SR:"rgba(237,233,254,0.98)",SSR:"rgba(255,251,235,0.98)"};
   var rarityLabel={N:"N",R:"R",SR:"SR",SSR:"SSR"};
+  const overlay=document.createElement("div");
+  overlay.id="gachaResultOverlay";
+  overlay.style.cssText="position:fixed;inset:0;background:"+flashBg[topRarity]+";z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;";
   const imgs=results.map(function(r){
     var rarity=r.rarity||"N";
     return "<div style=\"text-align:center;background:#fff;border-radius:20px;padding:10px 12px;box-shadow:0 6px 18px rgba(180,100,180,0.18)\"><span class=\"rarity-badge rarity-"+rarity+"\">"+rarityLabel[rarity]+"</span><img src=\""+r.img+"\" style=\"width:88px;height:88px;border-radius:14px;background:#f9f0ff;padding:4px;display:block\"><div style=\"color:#7c3aed;font-size:12px;font-weight:700;margin-top:6px\">"+r.name+"</div></div>";
@@ -716,19 +716,36 @@ function showGachaResult(results){
 function renderCollectionScreen(){
   const gs=loadGachaState();
   const obtained=new Set(gs.obtained);
+  var rarityColor={N:"#9ca3af",R:"#3b82f6",SR:"#8b5cf6",SSR:"#f59e0b"};
   let html="<div style=\"padding:12px\">";
   html+="<h2 style=\"text-align:center;margin-bottom:6px;font-size:20px;font-weight:800\">🧸 コレクション</h2>";
   html+="<p style=\"text-align:center;color:#7c3aed;font-size:13px;font-weight:700;margin-bottom:12px;background:#f5f3ff;border-radius:20px;padding:4px 14px;display:inline-block\">"+obtained.size+"/"+(COLLECTION_DATA||[]).length+" 種類</p>";
   html+="<div style=\"display:grid;grid-template-columns:repeat(4,1fr);gap:8px\">";
-  (COLLECTION_DATA||[]).forEach(function(item){
+  (COLLECTION_DATA||[]).forEach(function(item,idx){
+    var num="<div style=\"position:absolute;top:3px;left:5px;font-size:8px;color:#bbb;font-weight:700\">"+(idx+1)+"</div>";
     if(obtained.has(item.id)){
-      html+="<div style=\"background:#fff;border-radius:12px;padding:6px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.08)\"><img src=\""+item.img+"\" style=\"width:100%;border-radius:6px\"><div style=\"font-size:10px;margin-top:4px;color:#444;font-weight:600\">"+item.name+"</div></div>";
+      var rc=rarityColor[item.rarity||"N"];
+      html+="<div onclick=\"showCollectionDetail('"+item.id+"')\" style=\"position:relative;background:#fff;border-radius:12px;padding:6px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.08);border-top:2px solid "+rc+";cursor:pointer;animation:gaPopIn .3s ease both\">"+num+"<img src=\""+item.img+"\" style=\"width:100%;border-radius:6px\"><div style=\"font-size:9px;margin-top:3px;color:#444;font-weight:600;overflow:hidden;white-space:nowrap;text-overflow:ellipsis\">"+item.name+"</div></div>";
     }else{
-      html+="<div style=\"background:#f5f5f5;border-radius:12px;padding:6px;text-align:center;border:1.5px dashed #ddd\"><div style=\"width:100%;aspect-ratio:1;background:#eee;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:22px\">？</div><div style=\"font-size:10px;margin-top:4px;color:#bbb;letter-spacing:2px\">???</div></div>";
+      html+="<div style=\"position:relative;background:#f5f5f5;border-radius:12px;padding:6px;text-align:center;border:1.5px dashed #ddd\">"+num+"<div style=\"width:100%;aspect-ratio:1;background:#eee;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:22px\">？</div><div style=\"font-size:9px;margin-top:3px;color:#bbb;letter-spacing:1px\">???</div></div>";
     }
   });
   html+="</div></div>";
   screenCard.innerHTML=html;
+}
+function showCollectionDetail(itemId){
+  var item=(COLLECTION_DATA||[]).find(function(c){return c.id===itemId;});
+  if(!item)return;
+  var existing=document.getElementById("colDetailOverlay");if(existing)existing.remove();
+  var rc={N:"#9ca3af",R:"#3b82f6",SR:"#8b5cf6",SSR:"#f59e0b"};
+  var rl={N:"N",R:"R",SR:"SR",SSR:"SSR"};
+  var rarity=item.rarity||"N";
+  var ov=document.createElement("div");
+  ov.id="colDetailOverlay";
+  ov.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;";
+  ov.onclick=function(e){if(e.target===ov)ov.remove();};
+  ov.innerHTML="<div style=\"background:#fff;border-radius:24px;padding:24px;width:260px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);animation:gaPopIn .3s cubic-bezier(0.34,1.56,0.64,1) both;border-top:4px solid "+rc[rarity]+"\"><span class=\"rarity-badge rarity-"+rarity+"\">"+rl[rarity]+"</span><img src=\""+item.img+"\" style=\"width:160px;height:160px;border-radius:16px;object-fit:cover;margin:8px 0\"><div style=\"font-size:18px;font-weight:800;color:#333;margin-bottom:4px\">"+item.name+"</div><div style=\"font-size:12px;color:#9ca3af;margin-bottom:16px\">"+item.category+"</div><button onclick=\"document.getElementById('colDetailOverlay').remove()\" style=\"background:linear-gradient(135deg,#c084fc,#7c3aed);color:#fff;border:0;border-radius:12px;padding:10px 28px;font-size:14px;font-weight:700;cursor:pointer\">とじる</button></div>";
+  document.body.appendChild(ov);
 }
 
 // ===== 永続化 =====
