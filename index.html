@@ -338,7 +338,9 @@ function playTouchReaction(){
   vid.addEventListener("ended",onEnd);
 }
 
+var isGachaPlaying=false;
 tapZone.addEventListener("click",()=>{
+  if(isGachaPlaying)return;
   if(busy)return;
   if(screen.classList.contains("show"))return;
   const actionStates=["toy","chair","gardenBall","gardenWater","gardenButterfly",
@@ -423,7 +425,7 @@ function openScreen(tab){
   roomPop.classList.remove("show");
   if(tab==="talk"){screen.classList.remove("show");return;}
   screen.classList.add("show");
-  if(tab==="gacha"){renderGachaScreen();var _gv=screenCard.querySelector("video");if(_gv){_gv.muted=true;_gv.play().catch(function(){});}}
+  if(tab==="gacha"){isGachaPlaying=true;document.querySelector(".nav").style.display="none";renderGachaScreen();var _gv=screenCard.querySelector("video");if(_gv){_gv.muted=true;_gv.play().catch(function(){});}}
   else if(tab==="food")renderFoodScreen();
   else if(tab==="menu")renderMenuScreen()
   else if(tab==="done")renderDoneScreen();
@@ -615,6 +617,8 @@ function doGacha(cost){
 }
 
 function showGachaResult(results){
+  isGachaPlaying=false;
+  document.querySelector(".nav").style.display="";
   const overlay=document.createElement("div");
   overlay.id="gachaResultOverlay";
   overlay.style.cssText="position:fixed;inset:0;background:linear-gradient(160deg,rgba(255,220,240,0.97) 0%,rgba(230,220,255,0.97) 100%);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;";
@@ -747,16 +751,7 @@ setInterval(function(){
 
 setInterval(chooseRandomRoomState,90000);
 
-// もこちゃんのひとりごと（30秒ごと・非アクティブ時のみ）
-setInterval(function(){
-  if(busy||screen.classList.contains("show")||roomPop.classList.contains("show"))return;
-  if(Math.random()>0.4)return;
-  const monologues=["もこ、げんきだよ！","きょうはいいひだね〜","なにしてるの？","もこのこと、すき？♡","いっしょにいようね！","もこ、たのしいな♪","みてみて〜！","ねえねえ！"];
-  const t=monologues[Math.floor(Math.random()*monologues.length)];
-  speech.textContent=t;
-  speech.classList.add("show");
-  setTimeout(function(){speech.classList.remove("show");},2500);
-},30000);
+
 
 // ===== 初期化 =====
 window.addEventListener("load",function(){
