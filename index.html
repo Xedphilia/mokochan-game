@@ -343,23 +343,27 @@ function showRoomPopup(){
   roomPop.classList.toggle("show");
 }
 
+// ===== ゲーム定数 =====
+const HUNGER_FULL_MIN=80;
+const HUNGER_NORMAL_MIN=40;
+
 // ===== タッチ反応 =====
 function playTouchReaction(){
   if(busy)return;
   busy=true;
-  const reactions=hunger<40?["happy","tickle","angry"]:["happy","tickle"];
-  const reaction=reactions[Math.floor(Math.random()*reactions.length)];
+  var reaction,texts;
+  if(hunger<HUNGER_NORMAL_MIN){
+    reaction="angry";
+    texts=["お腹すいたよー！","やめてよお〜！"];
+  }else if(Math.random()<0.5){
+    reaction="happy";
+    texts=["たのしいね〜♡","いっしょにあそんで〜！","うふふ♡"];
+  }else{
+    reaction="tickle";
+    texts=["くすぐったいよ〜！","もっとあそんで〜！"];
+  }
   const reactionVids={happy:happyVideo,tickle:tickleVideo,angry:angryVideo};
-  const tz=getTimeZone();
-  const greetMap={morning:"おはよう！",afternoon:"こんにちは♪",evening:"おかえり！",night:"こんばんは〜"};
-  const greet=greetMap[tz]||"やあ！";
-  const reactionTexts={
-    happy:["うふふ♡","やったー！","えへへ♪","だいすき〜！","いっしょにいてね♡","ありがとう！","もっとなでて〜♡",greet+"もこだよ！","きょうもいいひだね！","うれしいな〜♪"],
-    tickle:["くすぐったいよ〜","もー！","やめてー！","ひゃー！","もこはくすぐったがりなの！","わらっちゃう〜！","やめないで〜♪"],
-    angry:["お腹すいてるのに...","ご飯が食べたいよ〜","ぷんぷん","おなかぺこぺこだよ！","ごはんまだ？","もこおなかすいた〜！"]
-  };
   const vid=reactionVids[reaction];
-  const texts=reactionTexts[reaction];
   speech.textContent=texts[Math.floor(Math.random()*texts.length)];
   speech.classList.add("show");
   stopAllVideos();
@@ -367,7 +371,7 @@ function playTouchReaction(){
   try{vid.currentTime=0;}catch(e){}
   vid.classList.add("active");
   const p=vid.play();
-  if(p&&p.catch)p.catch(()=>{busy=false;speech.classList.remove("show");returnToRoomIdle();});
+  if(p&&p.catch)p.catch(function(){busy=false;speech.classList.remove("show");returnToRoomIdle();});
   function onEnd(){
     vid.removeEventListener("ended",onEnd);
     busy=false;
