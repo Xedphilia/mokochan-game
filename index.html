@@ -920,11 +920,17 @@ function checkMokoSchedule(){
     stopAllVideos();
     bedroomSleepingVideo.loop=true;
     try{bedroomSleepingVideo.currentTime=0;}catch(e){}
-    var _cs=bedroomSleepingVideo,_cs_shown=false;
-    function _cs_show(){if(_cs_shown)return;_cs_shown=true;_cs.classList.add("active");}
-    if(_cs.readyState>=2){_cs_show();}
-    else{_cs.addEventListener("canplay",_cs_show,{once:true});setTimeout(_cs_show,3000);}
-    _cs.play().catch(function(){});
+    bedroomSleepingVideo.play().catch(function(){});
+    var _csTries=0,_csTimer=setInterval(function(){
+      if(!isSleeping){clearInterval(_csTimer);return;}
+      _csTries++;
+      if(bedroomSleepingVideo.readyState>=2||_csTries>=40){
+        stopAllVideos();
+        bedroomSleepingVideo.classList.add("active");
+        if(bedroomSleepingVideo.paused)bedroomSleepingVideo.play().catch(function(){});
+        clearInterval(_csTimer);
+      }
+    },200);
   }else if(h>=8&&h<21){
     isSleeping=false;
   }
@@ -960,11 +966,17 @@ function _initGame(){
     stopAllVideos();
     bedroomSleepingVideo.loop=true;
     try{bedroomSleepingVideo.currentTime=0;}catch(e){}
-    var _sv=bedroomSleepingVideo,_sv_shown=false;
-    function _sv_show(){if(_sv_shown)return;_sv_shown=true;_sv.classList.add("active");}
-    if(_sv.readyState>=2){_sv_show();}
-    else{_sv.addEventListener("canplay",_sv_show,{once:true});setTimeout(_sv_show,5000);}
-    _sv.play().catch(function(){});
+    bedroomSleepingVideo.play().catch(function(){});
+    var _svTries=0,_svTimer=setInterval(function(){
+      if(!isSleeping){clearInterval(_svTimer);return;}
+      _svTries++;
+      if(bedroomSleepingVideo.readyState>=2||_svTries>=40){
+        stopAllVideos();
+        bedroomSleepingVideo.classList.add("active");
+        if(bedroomSleepingVideo.paused)bedroomSleepingVideo.play().catch(function(){});
+        clearInterval(_svTimer);
+      }
+    },200);
   }else if(bearRoom==="bedroom"){
     const tz=getTimeZone();
     if(tz==="night"||tz==="evening")playRoomState("bedroomNightIdle");
