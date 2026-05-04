@@ -955,16 +955,18 @@ function _initGame(){
   const h=new Date().getHours();
   const bearRoom=getBearRoom();
   currentRoom=bearRoom;
+  document.title="DBG:h="+h+",room="+bearRoom+",rs="+document.readyState;
   if(h>=22||(h>=0&&h<8)){
     isSleeping=true;
     stopAllVideos();
     bedroomSleepingVideo.loop=true;
     try{bedroomSleepingVideo.currentTime=0;}catch(e){}
     var _sv=bedroomSleepingVideo,_sv_shown=false;
-    function _sv_show(){if(_sv_shown)return;_sv_shown=true;_sv.classList.add("active");}
+    function _sv_show(){if(_sv_shown)return;_sv_shown=true;_sv.classList.add("active");document.title="DBG:SHOW,rs="+_sv.readyState+",paused="+_sv.paused;}
+    document.title+=" sleep,svRs="+bedroomSleepingVideo.readyState;
     if(_sv.readyState>=2){_sv_show();}
-    else{_sv.addEventListener("canplay",_sv_show,{once:true});setTimeout(_sv_show,3000);}
-    _sv.play().catch(function(){});
+    else{_sv.addEventListener("canplay",_sv_show,{once:true});setTimeout(_sv_show,5000);}
+    _sv.play().catch(function(e){document.title+=" playErr="+e.name;});
   }else if(bearRoom==="bedroom"){
     const tz=getTimeZone();
     if(tz==="night"||tz==="evening")playRoomState("bedroomNightIdle");
