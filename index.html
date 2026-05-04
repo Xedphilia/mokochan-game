@@ -943,7 +943,9 @@ setInterval(chooseRandomRoomState,90000);
 
 
 // ===== 初期化 =====
-document.addEventListener("DOMContentLoaded",function(){
+function _initGame(){
+  if(_initGame._done)return;
+  _initGame._done=true;
   loadState();
   const h=new Date().getHours();
   const bearRoom=getBearRoom();
@@ -966,5 +968,10 @@ document.addEventListener("DOMContentLoaded",function(){
     playRoomState("gardenIdle");
   }
   updateStatus();
-});
+}
+if(document.readyState==="loading"){
+  document.addEventListener("DOMContentLoaded",_initGame);
+}else{
+  _initGame();
+}
 </script></body></html>
