@@ -256,9 +256,9 @@ function playRoomState(state){
   if(!v)return;
   v.loop=true;
   try{v.currentTime=0;}catch(e){}
-  v.classList.add("active");
   const p=v.play();
-  if(p&&p.catch)p.catch(()=>{});
+  if(p&&p.then)p.then(function(){v.classList.add("active");}).catch(function(){v.classList.add("active");});
+  else v.classList.add("active");
 }
 
 function returnToRoomIdle(){
@@ -917,9 +917,9 @@ function checkMokoSchedule(){
     stopAllVideos();
     bedroomSleepingVideo.loop=true;
     try{bedroomSleepingVideo.currentTime=0;}catch(e){}
-    bedroomSleepingVideo.classList.add("active");
     const p=bedroomSleepingVideo.play();
-    if(p&&p.catch)p.catch(function(){});
+    if(p&&p.then)p.then(function(){bedroomSleepingVideo.classList.add("active");}).catch(function(){bedroomSleepingVideo.classList.add("active");});
+    else bedroomSleepingVideo.classList.add("active");
   }else if(h>=8&&h<21){
     isSleeping=false;
   }
@@ -955,8 +955,9 @@ function _initGame(){
     stopAllVideos();
     bedroomSleepingVideo.loop=true;
     try{bedroomSleepingVideo.currentTime=0;}catch(e){}
-    bedroomSleepingVideo.classList.add("active");
-    bedroomSleepingVideo.play().catch(function(){});
+    var sp=bedroomSleepingVideo.play();
+    if(sp&&sp.then)sp.then(function(){bedroomSleepingVideo.classList.add("active");}).catch(function(){bedroomSleepingVideo.classList.add("active");});
+    else bedroomSleepingVideo.classList.add("active");
   }else if(bearRoom==="bedroom"){
     const tz=getTimeZone();
     if(tz==="night"||tz==="evening")playRoomState("bedroomNightIdle");
