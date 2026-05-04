@@ -918,10 +918,11 @@ function checkMokoSchedule(){
     isSleeping=false;
     currentRoom="bedroom";
     showLoadingThen(function(){switchRoom("bedroom");});
-  }else if(h===22&&!isSleeping&&!busy){
+  }else if((h>=22||(h>=0&&h<8))&&!isSleeping){
     isSleeping=true;
     document.body.classList.add("sleeping");
     stopAllVideos();
+    bedroomSleepingVideo.classList.add("active");
     bedroomSleepingVideo.loop=true;
     try{bedroomSleepingVideo.currentTime=0;}catch(e){}
     bedroomSleepingVideo.play().catch(function(){});
@@ -960,6 +961,7 @@ function _initGame(){
     isSleeping=true;
     document.body.classList.add("sleeping");
     stopAllVideos();
+    bedroomSleepingVideo.classList.add("active");
     bedroomSleepingVideo.loop=true;
     try{bedroomSleepingVideo.currentTime=0;}catch(e){}
     bedroomSleepingVideo.play().catch(function(){});
