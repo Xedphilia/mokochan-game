@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>モコちゃん v19</title>
+<link rel="icon" href="data:,">
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;min-height:100%;background:#ffece4;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;color:#4d2f20}
@@ -78,7 +79,7 @@ body.sleeping #bedroomSleepingVideo{opacity:1;z-index:2}
         <video id="gardenBallVideo" muted loop playsinline preload="metadata" src="videos/garden/ball.mp4"></video>
         <video id="gardenWaterVideo" muted loop playsinline preload="metadata" src="videos/garden/water.mp4"></video>
         <video id="gardenButterflyVideo" muted loop playsinline preload="metadata" src="videos/garden/butterfly.mp4"></video>
-        <video id="bedroomMorningIdleVideo" muted autoplay loop playsinline preload="auto" src="videos/bedroom/morning_idle.mp4"></video>
+        <video id="bedroomMorningIdleVideo" muted autoplay loop playsinline preload="metadata" src="videos/bedroom/morning_idle.mp4"></video>
         <video id="bedroomReadingMorningVideo" muted loop playsinline preload="metadata" src="videos/bedroom/reading_morning.mp4"></video>
         <video id="bedroomDrawingVideo" muted loop playsinline preload="metadata" src="videos/bedroom/drawing.mp4"></video>
         <video id="bedroomSleepingDuringVideo" muted loop playsinline preload="metadata" src="videos/bedroom/sleeping_during.mp4"></video>
@@ -245,7 +246,10 @@ function playLoopState(state){
   const v=stateVideos[state]||idleVideo;
   v.loop=true;
   try{v.currentTime=0;}catch(e){}
-  v.classList.add("active");
+  var _pls_shown=false;
+  function _pls_show(){if(_pls_shown)return;_pls_shown=true;v.classList.add("active");}
+  if(v.readyState>=2){_pls_show();}
+  else{v.addEventListener("canplay",_pls_show,{once:true});setTimeout(_pls_show,3000);}
   const p=v.play();
   if(p&&p.catch)p.catch(()=>{});
 }
