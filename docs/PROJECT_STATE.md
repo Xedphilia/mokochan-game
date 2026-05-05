@@ -1,6 +1,6 @@
 # mokochan-game プロジェクト現状
 
-最終更新: 2026-05-03
+最終更新: 2026-05-03 (Task 7-B/3-A〜3-C/4-A〜4-D/8-A〜8-L完了)
 
 ## 概要
 - 単体HTML型のWebアプリ（index.html + 外部JS 2本）
@@ -25,6 +25,10 @@
 | v8追加 | Task 6-B: confetti上向き打ち上げ / Task 6-C: 全完了オーバーレイ(1日1回) | 2026-05-03 |
 | v8追加 | Task 2-B: 吹き出しCSS リデザイン(border-radius:32px/パステルグラデ/スケールアニメ) | 2026-05-03 |
 | v8追加 | food_data.js 実画像更新 (4時間帯x5件=20アイテム / WebP 200px / 0.19MB) | 2026-05-03 |
+| v8追加 | Task 7-B: 空腹アイコン定数(HUNGER_FULL_MIN/HUNGER_NORMAL_MIN)を画像素材に置換 (76dc738) | 2026-05-03 |
+| v8追加 | Task 3-A/3-B/3-C: レアリティシステム導入(N/R/SR/SSR)・コレクション全39アイテムにrarity付与・ガチャ重み付け抽選 (5ed1999) | 2026-05-03 |
+| v8追加 | Task 4-A〜4-D: コレクション強化(番号表示/レアリティ色枠/詳細モーダル/クリック)・SSRガチャ演出フラッシュ (06c20da) | 2026-05-03 |
+| v8追加 | Task 8-A〜8-L: お話機能実装(Gemini 2.0-flash連携/TTS/会話履歴/フォールバック/APIキー設定) (2737c27) | 2026-05-03 |
 
 ## タブ構造 (画面)
 
@@ -38,7 +42,7 @@
 | `gacha` | **実装済** | 無料/5pt/50ptのガチャ・スピン動画・39アイテム抽選 |
 | `collection` | **実装済** | 4列グリッド・取得済/未取得シルエット・動的カウント |
 | `menu` | **実装済** | サウンドON/OFF・名前変更・データリセット・v8バージョン情報 |
-| `talk` | 既存 | タッチリアクション（空腹分岐: Task7-A） |
+| `talk` | **実装済** | Gemini 2.0-flash AI会話・TTS読み上げ・会話履歴20件・フォールバック(Task 8-A〜8-L) |
 
 ## 関数マップ（主要）
 
@@ -60,6 +64,14 @@
 | `playTouchReaction()` | タッチリアクション (Task7-A: 空腹分岐) |
 | `playRoomState(state)` | 部屋状態動画再生 |
 | `saveState()` / `loadState()` | localStorage 永続化 |
+| `pickOneByRarity(pool)` | レアリティ重み付き抽選(SSR:3/SR:12/R:25/N:60) |
+| `showGachaResult(results)` | ガチャ結果オーバーレイ・SSRフラッシュ演出 |
+| `showCollectionDetail(itemId)` | コレクション詳細モーダル(レアリティバッジ・160px画像・名前・カテゴリ) |
+| `getGeminiKey()` | localStorage からGemini APIキー取得 |
+| `pcmBase64ToWavBlob(b64, sampleRate)` | Gemini TTS PCMをブラウザWAV形式に変換(DataView) |
+| `speakWithGeminiTTS(text)` | Gemini 2.5-flash-preview-tts で音声読み上げ、fallback=Web Speech API |
+| `sendMessageToMoko(userMsg)` | Gemini 2.0-flash にメッセージ送信・会話履歴管理・フォールバック |
+| `renderTalkScreen()` | お話タブUI描画(チャット履歴/入力欄/送信ボタン) |
 | `saveGachaState()` / `loadGachaState()` | ガチャ状態永続化 |
 | `updateStatus()` | ヘッダのポイント・hunger 表示更新 |
 | `stopAllVideos()` | 全動画停止 |
@@ -80,6 +92,8 @@
 | `soundEnabled` | `boolean` | サウンドON/OFF |
 | `isGachaPlaying` | `boolean` | ガチャ演出中フラグ |
 | `currentTab` | `string` | 現在表示中タブ |
+| `talkHistory` | `Array<{role,text}>` | お話会話履歴(最大20件) |
+| `RARITY_RATES` | `{N,R,SR,SSR}` | レアリティ抽選率定数 |
 
 ## コレクション構成 (2026-05-03更新)
 
@@ -88,6 +102,12 @@
 - `おもちゃ`: 11種 (`collection_data.js` category="おもちゃ")
 - 画像: WebP 200×200px・base64埋め込み
 - 素材元: `/Users/xedphilia_/Downloads/kuma.video/実装関係/画像素材/ガチャコレクション/`
+- **レアリティ**: 全39アイテムに `rarity` フィールド付与
+  - SSR(2): col_037(服をきたうさぎ), col_039(猫のぬいぐるみ)
+  - SR(5): col_019, col_025, col_031, col_032, col_035
+  - R(11): col_008, col_009, col_011, col_012, col_015, col_018, col_021, col_023, col_030, col_033, col_038
+  - N(21): 残り全て
+- **抽選率**: SSR:3% / SR:12% / R:25% / N:60%
 
 ## 永続化
 
@@ -99,6 +119,8 @@
 | ガチャキー | `mokochan_gacha_v1` |
 | ガチャ内容 | `{obtained: [...id], freeDate, freeDone}` |
 | 日付不一致時 | `completed` をリセット (`totalPoints`/`hunger` は継続) |
+| Geminiキー | `mokochan_gemini_key` |
+| Geminiキー内容 | Gemini APIキー文字列(パスワード入力・設定タブで管理) |
 
 ## 既知の制約
 
@@ -109,5 +131,5 @@
 ## 次の実装候補 (NEXT_STEPS.md参照)
 
 - フェーズ2: 成長システム（経験値・レベルアップ）
-- フェーズ4: 会話AI（Ollama連携）
-- フェーズ8: 追加コンテンツ・イベント
+- 会話AI拡張: お話タブにVoice入力(STT)・ずんだもんTTS切替
+- フェーズ8: 追加コンテンツ・イベント・季節限定ガチャ
