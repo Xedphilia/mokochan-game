@@ -246,10 +246,7 @@ function playLoopState(state){
   const v=stateVideos[state]||idleVideo;
   v.loop=true;
   try{v.currentTime=0;}catch(e){}
-  var _pls_shown=false;
-  function _pls_show(){if(_pls_shown)return;_pls_shown=true;v.classList.add("active");}
-  if(v.readyState>=2){_pls_show();}
-  else{v.addEventListener("canplay",_pls_show,{once:true});setTimeout(_pls_show,3000);}
+  v.classList.add("active");
   const p=v.play();
   if(p&&p.catch)p.catch(()=>{});
 }
