@@ -664,7 +664,7 @@ function saveGachaState(gs){
 }
 
 var TEST_MODE=true;
-function renderGachaScreen(){
+function renderGachaScreen(){var _scrEl=document.getElementById('screen');if(_scrEl){_scrEl.style.padding='0';}var _cEl=document.getElementById('screenCard');if(_cEl){_cEl.style.padding='0';_cEl.style.background='transparent';_cEl.style.boxShadow='none';_cEl.style.borderRadius='0';_cEl.style.overflow='hidden';}
   var gs=loadGachaState();
   var today=new Date().toISOString().slice(0,10);
   var freeDone=gs.freeDate===today&&gs.freeDone;
@@ -687,7 +687,7 @@ function renderGachaScreen(){
   html+='</div>';
   screenCard.innerHTML=html;
 }
-function closeGachaScreen(){
+function closeGachaScreen(){var _cEl=document.getElementById('screenCard');if(_cEl){_cEl.style.padding='';_cEl.style.background='';_cEl.style.boxShadow='';_cEl.style.borderRadius='';_cEl.style.overflow='';}var _scrEl=document.getElementById('screen');if(_scrEl){_scrEl.style.padding='';}
   isGachaPlaying=false;
   document.querySelector(".nav").style.display="";
   screenCard.parentElement.style.background="";
