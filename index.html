@@ -242,7 +242,7 @@ async function showLoadingThen(callback){
   loadingOverlay.style.opacity="1";
 }
 
-var videoCache=new Map();
+var videoCache=new Map();var _roomToken=0;
 var ROOM_VIDEOS={
   garden:["gardenIdleVideo","gardenBallVideo","gardenWaterVideo","gardenButterflyVideo","gardenHappyVideo"],
   bedroom:["bedroomMorningIdleVideo","bedroomReadingMorningVideo","bedroomDrawingVideo","bedroomSleepingDuringVideo","bedroomNightIdleVideo","bedroomReadingNightVideo","bedroomSleepingVideo"],
@@ -293,7 +293,7 @@ function playRoomState(state){
   var _rs_shown=false;
   function _rs_show(){if(_rs_shown)return;_rs_shown=true;v.classList.add("active");}
   if(v.readyState>=2){_rs_show();}
-  else{v.addEventListener("canplay",_rs_show,{once:true});setTimeout(_rs_show,3000);}
+  else{v.addEventListener("canplay",_rs_show,{once:true});setTimeout(_rs_show,1000);}
   const p=v.play();
   if(p&&p.catch)p.catch(function(){});
 }
@@ -325,18 +325,20 @@ function switchRoom(room){
   document.body.classList.remove("sleeping");
   saveState();
   updateStatus();
+  var _tok=++_roomToken;
   if(room==="living"||videoCache.has(room)){
-    showLoadingThen(function(){returnToRoomIdle();});
+    busy=false;
+    returnToRoomIdle();
   }else{
     busy=true;
-    loadingOverlay.classList.add("show");
-    loadingOverlay.style.opacity="1";
     loadVideosForRoom(room).then(function(){
+      if(_tok!==_roomToken)return;
       returnToRoomIdle();
-      setTimeout(function(){
-        loadingOverlay.style.opacity="0";
-        setTimeout(function(){loadingOverlay.classList.remove("show");loadingOverlay.style.opacity="1";busy=false;},300);
-      },100);
+    }).catch(function(){
+      if(_tok!==_roomToken)return;
+      returnToRoomIdle();
+    }).finally(function(){
+      if(_tok===_roomToken)busy=false;
     });
   }
 }
