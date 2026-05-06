@@ -39,8 +39,8 @@ body.sleeping #bedroomSleepingVideo{opacity:1;z-index:2}
 @keyframes gaPopIn{0%{transform:scale(0) rotate(-15deg);opacity:0}60%{transform:scale(1.2) rotate(5deg);opacity:1}100%{transform:scale(1) rotate(0deg);opacity:1}}@keyframes gachaFlash{0%{opacity:1}50%{opacity:0.2}100%{opacity:1}}.rarity-badge{display:inline-block;font-size:10px;font-weight:800;border-radius:6px;padding:2px 6px;letter-spacing:1px;margin-bottom:4px}.rarity-N{background:#e5e7eb;color:#6b7280}.rarity-R{background:#bfdbfe;color:#1d4ed8}.rarity-SR{background:linear-gradient(90deg,#a78bfa,#6366f1);color:#fff}.rarity-SSR{background:linear-gradient(90deg,#fde68a,#f59e0b,#ef4444);color:#fff;animation:gachaFlash 0.8s ease-in-out 3}
 .room-pop{position:absolute;left:88px;bottom:140px;z-index:50;display:flex;gap:10px;opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .14s ease,transform .14s ease}
 .room-pop.show{opacity:1;pointer-events:auto;transform:translateY(0)}
-.room-pop button{width:110px;height:128px;border:0;border-radius:22px;background:rgba(255,255,255,.96);box-shadow:0 8px 20px rgba(0,0,0,.18);color:#5b3826;font-weight:900;font-size:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:visible;padding:6px 4px}
-.room-pop img{width:76px;height:76px;object-fit:contain}
+.room-pop button{width:110px;border:0;border-radius:22px;background:rgba(255,255,255,.96);box-shadow:0 8px 20px rgba(0,0,0,.18);color:#5b3826;font-weight:900;font-size:12px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;overflow:hidden;padding:0 0 8px}
+.room-pop img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:18px 18px 0 0}
 .screen{position:absolute;inset:0;z-index:28;pointer-events:none;opacity:0;transform:translateY(8px);transition:opacity .16s ease,transform .16s ease;padding:72px 14px 118px}
 .screen.show{opacity:1;transform:translateY(0);pointer-events:auto}
 .card{height:100%;border-radius:26px;background:rgba(255,250,245,.94);box-shadow:0 12px 32px rgba(0,0,0,.18);padding:18px;padding-bottom:140px;overflow:auto}
@@ -377,8 +377,8 @@ function showRoomPopup(){
   const others=allRooms.filter(r=>r.id!==currentRoom);
   roomPop.innerHTML=others.map(r=>{
     var _tz=getTimeZone();const thumb=r.id==="living"?(_tz==="night"?"bg_living_night.png":_tz==="evening"?"bg_living_evening.png":"bg_living_day.png"):_ROOM_THUMBS[r.id];
-    const img=thumb?'<img src="'+thumb+'" style="width:90px;height:90px;object-fit:cover;border-radius:12px;display:block;margin:0 auto 4px">':'';
-    return '<button data-room="'+r.id+'">'+img+'<span style="font-size:11px;font-weight:800;display:block;text-align:center;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+r.label+'</span></button>';
+    const img=thumb?'<img src="'+thumb+'" style="width:100%;aspect-ratio:1;object-fit:cover;display:block">':'';
+    return '<button data-room="'+r.id+'">'+img+'<span style="font-size:11px;font-weight:800;display:block;text-align:center;padding:4px 2px 0;line-height:1.2">'+r.emoji+' '+r.label+'</span></button>';
   }).join("");
   roomPop.querySelectorAll("button").forEach(btn=>{
     btn.addEventListener("click",()=>{
