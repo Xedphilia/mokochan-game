@@ -416,14 +416,15 @@ function playTouchReaction(){
     reaction="tickle";
     texts=["くすぐったいよ〜！","もっとあそんで〜！"];
   }
-  var _isGarden=(currentRoom==="garden");var reactionVids={happy:_isGarden?(gardenHappyVideo||happyVideo):happyVideo,tickle:tickleVideo,angry:_isGarden?(gardenHappyVideo||angryVideo):angryVideo};
+  var _isGarden=(currentRoom==="garden");var _gVid=_isGarden?(gardenHappyVideo||happyVideo):null;var reactionVids={happy:_gVid||happyVideo,tickle:_gVid||tickleVideo,angry:_gVid||angryVideo};
   const vid=reactionVids[reaction];
   speech.textContent=texts[Math.floor(Math.random()*texts.length)];
   speech.classList.add("show");
   stopAllVideos();
   vid.loop=false;
   try{vid.currentTime=0;}catch(e){}
-  vid.classList.add("active");
+  var _tr_shown=false;function _tr_show(){if(_tr_shown)return;_tr_shown=true;vid.classList.add("active");}
+  if(vid.readyState>=2){_tr_show();}else{vid.addEventListener("canplay",_tr_show,{once:true});setTimeout(_tr_show,3000);}
   const p=vid.play();
   if(p&&p.catch)p.catch(function(){busy=false;speech.classList.remove("show");returnToRoomIdle();});
   function onEnd(){
