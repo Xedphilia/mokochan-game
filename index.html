@@ -213,7 +213,7 @@ const tasks=[
 // ===== 時間帯システム =====
 var _cheatHour=null;
 function getTimeZone(){
-  const h=(_cheatHour\!==null)?_cheatHour:new Date().getHours();
+  const h=(_cheatHour!==null)?_cheatHour:new Date().getHours();
   if(h>=5&&h<8)return"morning";
   if(h>=8&&h<16)return"noon";
   if(h>=16&&h<18)return"evening";
@@ -580,7 +580,7 @@ function openScreen(tab){
 }
 
 // ===== FOODタブ =====
-function getMealTimeSlot(){var h=(_cheatHour\!==null)?_cheatHour:new Date().getHours();if(h>=8&&h<10)return"breakfast";if(h>=10&&h<15)return"lunch";if(h>=15&&h<16)return"snack";if(h>=18&&h<21)return"dinner";return null;}function canEat(){var slot=getMealTimeSlot();if(!slot)return false;try{var last=JSON.parse(localStorage.getItem("mokochan_last_meal")||"null");if(!last)return true;if(last.slot===slot)return false;return true;}catch(e){return true;}}function recordMeal(slot){localStorage.setItem("mokochan_last_meal",JSON.stringify({slot:slot,ts:Date.now()}));}function renderFoodScreen(){
+function getMealTimeSlot(){var h=(_cheatHour!==null)?_cheatHour:new Date().getHours();if(h>=8&&h<10)return"breakfast";if(h>=10&&h<15)return"lunch";if(h>=15&&h<16)return"snack";if(h>=18&&h<21)return"dinner";return null;}function canEat(){var slot=getMealTimeSlot();if(!slot)return false;try{var last=JSON.parse(localStorage.getItem("mokochan_last_meal")||"null");if(!last)return true;if(last.slot===slot)return false;return true;}catch(e){return true;}}function recordMeal(slot){localStorage.setItem("mokochan_last_meal",JSON.stringify({slot:slot,ts:Date.now()}));}function renderFoodScreen(){
   const tz=getTimeZone();
   const tzLabel={morning:"朝食",noon:"昼食",evening:"夕食",night:"おやつ"}[tz];
   const tzKey={morning:"morning",noon:"lunch",evening:"evening",night:"snack"}[tz];
