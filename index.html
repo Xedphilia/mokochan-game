@@ -892,8 +892,8 @@ function showGachaLineup(){
   inner+='<h2 style="font-size:17px;font-weight:800;color:#333;margin:0">🎴 ガチャラインナップ</h2>';
   inner+="<button onclick=\"document.getElementById('gachaLineupOverlay').remove()\" style=\"background:#f3f4f6;border:0;border-radius:20px;padding:6px 12px;font-size:13px;cursor:pointer\">とじる</button>";
   inner+='</div>';
-  inner+='<p style="font-size:12px;
-  inner+='<div style="overflow-y:auto;flex:1;padding:0 16px 16px">';color:#9ca3af;margin-bottom:12px">取得済み: '+obtained.size+'/'+(COLLECTION_DATA||[]).length+'種</p>';
+  inner+='<div style="overflow-y:auto;flex:1;padding:0 16px 16px">';
+  inner+='<p style="font-size:12px;color:#9ca3af;margin-bottom:12px">取得済み: '+obtained.size+'/'+(COLLECTION_DATA||[]).length+'種</p>';
   inner+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">';
   (COLLECTION_DATA||[]).forEach(function(item,idx){
     var rc=rarityColor[item.rarity||'N'];
