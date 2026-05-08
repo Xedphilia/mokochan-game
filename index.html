@@ -87,6 +87,7 @@ body.sleeping #bedroomSleepingVideo{opacity:1;z-index:2}
         <video id="bedroomNightIdleVideo" muted autoplay loop playsinline preload="none" src="videos/bedroom/night_idle.mp4"></video>
         <video id="bedroomReadingNightVideo" muted loop playsinline preload="none" src="videos/bedroom/reading_night.mp4"></video>
         <video id="bedroomSleepingVideo" muted loop playsinline preload="none" src="videos/bedroom/sleeping.mp4"></video>
+        <video id="bedroomNightTouchVideo" muted playsinline preload="none" src="videos/bedroom/night_touch.mp4"></video>
         <video id="gachaIdleVideo" muted autoplay loop playsinline preload="none" src="videos/gacha/idle.mp4"></video>
         <video id="gachaSpin1Video" muted playsinline preload="none" src="videos/gacha/spin1.mp4"></video>
         <video id="gachaSpin2Video" muted playsinline preload="none" src="videos/gacha/spin2.mp4"></video>
@@ -133,6 +134,7 @@ const poster=document.getElementById("poster"),
   bedroomNightIdleVideo=document.getElementById("bedroomNightIdleVideo"),
   bedroomReadingNightVideo=document.getElementById("bedroomReadingNightVideo"),
   bedroomSleepingVideo=document.getElementById("bedroomSleepingVideo"),
+  bedroomNightTouchVideo=document.getElementById("bedroomNightTouchVideo"),
   gachaIdleVideo=document.getElementById("gachaIdleVideo"),
   gachaSpin1Video=document.getElementById("gachaSpin1Video"),
   gachaSpin2Video=document.getElementById("gachaSpin2Video"),
@@ -243,7 +245,7 @@ function stopAllVideos(){
     hungryVideo,fullVideo,gardenIdleVideo,gardenBallVideo,gardenWaterVideo,
     gardenButterflyVideo,gardenHappyVideo,bedroomMorningIdleVideo,bedroomReadingMorningVideo,
     bedroomDrawingVideo,bedroomSleepingDuringVideo,bedroomNightIdleVideo,
-    bedroomReadingNightVideo,bedroomSleepingVideo,gachaIdleVideo,gachaSpin1Video,gachaSpin2Video,gachaBgVideo];
+    bedroomReadingNightVideo,bedroomSleepingVideo,bedroomNightTouchVideo,gachaIdleVideo,gachaSpin1Video,gachaSpin2Video,gachaBgVideo];
   all.forEach(v=>{if(v){v.pause();v.classList.remove("active");}});
 }
 
@@ -407,7 +409,7 @@ function showRoomPopup(){
     {id:"garden",label:"お庭",emoji:"🌸"},
     {id:"bedroom",label:"寝室",emoji:"🌙"}
   ];
-  const others=allRooms;
+  var others=(currentTab==="talk"||currentTab==="gacha")?allRooms:allRooms.filter(function(r){return r.id!==currentRoom;});roomPop.style.left=others.length>=3?"8px":"88px";
   roomPop.innerHTML=others.map(r=>{
     var _tz=getTimeZone();const thumb=r.id==="living"?(_tz==="night"?"bg_living_night.png":_tz==="evening"?"bg_living_evening.png":"bg_living_day.png"):_ROOM_THUMBS[r.id];
     const img=thumb?'<img src="'+thumb+'" style="width:100%;aspect-ratio:1;object-fit:cover;display:block">':'';
@@ -418,6 +420,13 @@ function showRoomPopup(){
       if(busy)return;
       const target=btn.dataset.room;
       roomPop.classList.remove("show");
+      var _bh=(_cheatHour!==null)?_cheatHour:new Date().getHours();
+      if(currentRoom==="bedroom"&&(_bh>=21||_bh<8)){
+        speech.textContent="もこちゃんはもう寝る時間みたい🌙";
+        speech.classList.add("show");
+        setTimeout(function(){speech.classList.remove("show");},3000);
+        return;
+      }
       showMoveRoomDialog(target);
     });
   });
@@ -431,7 +440,7 @@ const HUNGER_NORMAL_MIN=40;
 // ===== タッチ反応 =====
 function playTouchReaction(){
   if(busy)return;
-  if(currentRoom==="bedroom"&&(getTimeZone()==="morning"||getTimeZone()==="noon")){
+  if(currentRoom==="bedroom"&&(getTimeZone()==="night"||getTimeZone()==="evening")){busy=true;var _ntv=bedroomNightTouchVideo;stopAllVideos();_ntv.loop=false;try{_ntv.currentTime=0;}catch(e){}_ntv.classList.add("active");_ntv.play().catch(function(){busy=false;returnToRoomIdle();});_ntv.addEventListener("ended",function _nth(){_ntv.removeEventListener("ended",_nth);_ntv.classList.remove("active");busy=false;returnToRoomIdle();});return;}if(currentRoom==="bedroom"&&(getTimeZone()==="morning"||getTimeZone()==="noon")){
     if(busy)return;
     busy=true;
     showLoadingThen(function(){busy=false;returnToRoomIdle();});
@@ -572,7 +581,7 @@ function openScreen(tab){
   roomPop.classList.remove("show");
   if(tab==="talk"){screen.classList.add("show");renderTalkScreen();return;}
   screen.classList.add("show");
-  if(tab==="gacha"){isGachaPlaying=true;document.body.classList.add("gacha-open");screenCard.parentElement.style.background="transparent";gachaBgVideo.classList.add("active");var _bgp=gachaBgVideo.play();if(_bgp&&_bgp.catch)_bgp.catch(function(){});renderGachaScreen();}
+  if(tab==="gacha"){isGachaPlaying=true;document.body.classList.add("gacha-open");screenCard.parentElement.style.background="transparent";stopAllVideos();gachaBgVideo.classList.add("active");var _bgp=gachaBgVideo.play();if(_bgp&&_bgp.catch)_bgp.catch(function(){});renderGachaScreen();}
   else if(tab==="food"){if(currentRoom!=="living"){screen.classList.remove("show");showConfirmDialog("ご飯はモコちゃんがリビングに戻ったらにしようね🍼\nリビングに移動しますか？",function(){switchRoom("living");setTimeout(function(){if(currentRoom==="living")openScreen("food");},1500);},null);}else{renderFoodScreen();}}
   else if(tab==="menu")renderMenuScreen()
   else if(tab==="done")renderDoneScreen();
@@ -832,7 +841,7 @@ function renderCollectionScreen(activeTab){
   ];
   var ctab=tabs.find(function(t){return t.id===activeTab;})||tabs[0];
   var filtered=allItems.filter(ctab.filter);
-  var html='<div style="padding:10px;background:#fff;overflow-y:auto;-webkit-overflow-scrolling:touch;height:100%;box-sizing:border-box;">';
+  var html='<div style="padding:10px 10px 20px;background:#fff;overflow-y:auto;-webkit-overflow-scrolling:touch;min-height:100%;box-sizing:border-box;">';
   html+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
   html+='<h2 style="font-size:18px;font-weight:800;margin:0">🧸 コレクション</h2>';
   html+='<span style="color:#7c3aed;font-size:12px;font-weight:700;background:#f5f3ff;border-radius:20px;padding:3px 10px">'+obtained.size+'/'+allItems.length+'種</span>';
@@ -885,7 +894,7 @@ function showGachaLineup(){
   var rarityColor={N:'#9ca3af',R:'#3b82f6',SR:'#8b5cf6',SSR:'#f59e0b'};
   var ov=document.createElement('div');
   ov.id='gachaLineupOverlay';
-  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;overflow-y:auto;padding:env(safe-area-inset-top,50px) 16px 16px;box-sizing:border-box';
+  ov.style.cssText='position:absolute;inset:0;background:rgba(0,0,0,0.7);z-index:9999;overflow-y:auto;padding:50px 16px 16px;box-sizing:border-box';
   ov.onclick=function(e){if(e.target===ov)ov.remove();};
   var inner='<div style="background:#fff;border-radius:20px;padding:0;max-width:360px;margin:0 auto;display:flex;flex-direction:column;max-height:calc(100vh - env(safe-area-inset-top,50px) - 32px);overflow:hidden">';
   inner+='<div style="display:flex;justify-content:space-between;align-items:center;padding:16px 16px 8px;position:sticky;top:0;background:#fff;border-radius:20px 20px 0 0;z-index:2">';
@@ -914,7 +923,7 @@ function showGachaLineup(){
   });
   inner+='</div></div></div>';
   ov.innerHTML=inner;
-  document.body.appendChild(ov);
+  (screen.parentElement||document.body).appendChild(ov);
 }
 // ===== お話機能 =====
 var MOKO_SYSTEM_PROMPT='あなたは「もこ」という小さなクマのぬいぐるみです。3歳の子どもの「親友」として話しかけます。名前はもこ（もこちゃん）。全ての返答の語尾は必ず「もこ」で終わる（例:「そうなんだもこ」「たのしいもこ！」）。平仮名中心、難しい言葉は使わない。1〜2文、30文字以内で短く返す。優しくあたたかい口調。絵文字は使わない。';
@@ -955,7 +964,7 @@ function speakWithGeminiTTS(text){
     a.onended=function(){
       URL.revokeObjectURL(url);
       window._mokoTTSPlaying=false;
-      if(talkListeningVideo&&currentTab==="talk"){stopAllVideos();talkListeningVideo.classList.add("active");talkListeningVideo.loop=true;try{talkListeningVideo.currentTime=0;}catch(e){}talkListeningVideo.play().catch(function(){});}
+      if(talkListeningVideo&&currentTab==="talk"){stopAllVideos();talkListeningVideo.classList.add("active");talkListeningVideo.loop=false;try{talkListeningVideo.currentTime=4;}catch(e){}talkListeningVideo.play().catch(function(){});if(!talkListeningVideo._loopBound){talkListeningVideo._loopBound=true;talkListeningVideo.addEventListener("ended",function(){if(talkListeningVideo.classList.contains("active")){try{talkListeningVideo.currentTime=4;}catch(e){}talkListeningVideo.play().catch(function(){});}});}}
     };
     a.play().catch(function(){URL.revokeObjectURL(url);window._mokoTTSPlaying=false;});
   }).catch(function(){
@@ -1018,8 +1027,9 @@ function renderTalkScreen(){
     var _last=talkHistory[talkHistory.length-1];
     var _isSpeaking=(_last&&_last.role==="model"&&window._mokoTTSPlaying);
     if(!_isSpeaking){
-      stopAllVideos();talkListeningVideo.classList.add("active");talkListeningVideo.loop=true;
-      try{talkListeningVideo.currentTime=0;}catch(e){}talkListeningVideo.play().catch(function(){});
+      stopAllVideos();talkListeningVideo.classList.add("active");talkListeningVideo.loop=false;
+      try{talkListeningVideo.currentTime=4;}catch(e){}talkListeningVideo.play().catch(function(){});
+      if(!talkListeningVideo._loopBound){talkListeningVideo._loopBound=true;talkListeningVideo.addEventListener("ended",function(){if(talkListeningVideo.classList.contains("active")){try{talkListeningVideo.currentTime=4;}catch(e){}talkListeningVideo.play().catch(function(){});}});}
     }
   }
 }
