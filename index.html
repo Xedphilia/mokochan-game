@@ -754,9 +754,9 @@ function renderGachaScreen(){var _scrEl=document.getElementById('screen');if(_sc
   if(remaining===0){
     html+='<div style="position:absolute;bottom:20%;left:50%;transform:translateX(-50%);z-index:10;background:rgba(0,0,0,0.6);color:#fff;border-radius:20px;padding:14px 22px;text-align:center;font-size:16px;font-weight:700;white-space:nowrap">🎉 コンプリート！</div>';
   }else{
-    html+='<button onclick="doGacha(0)" '+(canFree?'':' disabled ')+' style="position:absolute;bottom:7%;left:3%;width:29%;height:9%;z-index:10;background:transparent;border:none;cursor:'+(canFree?'pointer':'not-allowed')+';"></button>';
-    html+='<button onclick="gachaOrWarn(5)" '+(totalPoints<5?' ':' ')+' style="position:absolute;bottom:7%;left:35%;width:29%;height:9%;z-index:10;background:transparent;border:none;cursor:'+(totalPoints<5?'not-allowed':'pointer')+';"></button>';
-    html+='<button onclick="gachaOrWarn(50)" '+(totalPoints<50?' ':' ')+' style="position:absolute;bottom:7%;right:3%;width:29%;height:9%;z-index:10;background:transparent;border:none;cursor:'+(totalPoints<50?'not-allowed':'pointer')+';"></button>';
+    html+='<button onclick="doGacha(0)" '+(canFree?'':' disabled ')+' style="position:absolute;bottom:7%;left:3%;width:29%;height:35%;z-index:10;background:transparent;border:none;cursor:'+(canFree?'pointer':'not-allowed')+';"></button>';
+    html+='<button onclick="gachaOrWarn(5)" '+(totalPoints<5?' ':' ')+' style="position:absolute;bottom:7%;left:35%;width:29%;height:35%;z-index:10;background:transparent;border:none;cursor:'+(totalPoints<5?'not-allowed':'pointer')+';"></button>';
+    html+='<button onclick="gachaOrWarn(50)" '+(totalPoints<50?' ':' ')+' style="position:absolute;bottom:7%;right:3%;width:29%;height:35%;z-index:10;background:transparent;border:none;cursor:'+(totalPoints<50?'not-allowed':'pointer')+';"></button>';
   }
   html+='</div>';
   screenCard.innerHTML=html;
@@ -764,7 +764,7 @@ function renderGachaScreen(){var _scrEl=document.getElementById('screen');if(_sc
 function gachaOrWarn(cost){
   if(totalPoints<cost){
     var _ph=document.querySelector(".phone");
-    if(_ph){var _w=document.createElement("div");_w.style.cssText="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:200;pointer-events:none;";var _img=document.createElement("img");_img.src="images/point_insufficient.png";_img.style.cssText="width:85%;max-width:280px;border-radius:16px;display:block;margin:0 auto;";_w.appendChild(_img);_ph.appendChild(_w);setTimeout(function(){if(_w.parentNode)_w.parentNode.removeChild(_w);},2000);}
+    if(_ph){var _w=document.createElement("div");_w.style.cssText="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:200;pointer-events:none;";var _img=document.createElement("img");_img.src="images/point_insufficient.png";_img.style.cssText="width:92%;border-radius:16px;display:block;margin:0 auto;";_w.appendChild(_img);_ph.appendChild(_w);setTimeout(function(){if(_w.parentNode)_w.parentNode.removeChild(_w);},2000);}
     return;
   }
   doGacha(cost);
@@ -1054,7 +1054,7 @@ function loadState(){
     totalPoints=s.totalPoints||0;
     hunger=typeof s.hunger==="number"?Math.max(0,Math.min(100,s.hunger)):100;
     const validRooms=["living","garden","bedroom"];
-    currentRoom=validRooms.includes(s.currentRoom)?s.currentRoom:"living";
+    currentRoom=validRooms.includes(s.currentRoom)?s.currentRoom:"living";var _lh=new Date().getHours();if(currentRoom==="bedroom"&&(_lh>=8&&_lh<21)){currentRoom="living";}
     if(s.savedDate===today){completed=new Set(s.completed||[]);}
     else{completed=new Set();}
     soundEnabled=typeof s.soundEnabled==="boolean"?s.soundEnabled:true;
