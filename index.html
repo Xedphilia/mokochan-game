@@ -45,7 +45,7 @@ body.sleeping #bedroomSleepingVideo{opacity:1;z-index:2}
 .screen.show{opacity:1;transform:translateY(0);pointer-events:auto}
 .card{height:100%;border-radius:26px;background:rgba(255,250,245,.94);box-shadow:0 12px 32px rgba(0,0,0,.18);padding:18px;padding-bottom:140px;overflow:auto}
 .card h2{margin:0 0 8px;font-size:26px}.card p{line-height:1.55;color:#7b5846;font-weight:700}
-.nav{position:absolute;left:4px;right:4px;bottom:10px;height:84px;z-index:60;background:rgba(255,255,255,.96);border-radius:23px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:stretch;box-shadow:0 6px 18px rgba(0,0,0,.18);padding:4px 0}
+.nav{position:absolute;left:4px;right:4px;bottom:10px;height:84px;z-index:60;background:rgba(255,255,255,.96);border-radius:23px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:stretch;box-shadow:0 6px 18px rgba(0,0,0,.18);padding:4px 6px}
 .gacha-open .nav{transform:translateY(110%);transition:transform .3s;pointer-events:none;}.nav button{border:0;background:transparent;font-size:10px;height:100%;padding:2px 0;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;box-sizing:border-box;gap:2px}.nav button:active{transform:none}
 .nav button.active{background:linear-gradient(135deg,rgba(255,182,193,.85),rgba(255,105,180,.55));border:2px solid rgba(244,114,182,.6);border-radius:12px;margin:2px 2px;box-shadow:0 2px 8px rgba(255,105,180,.4)}.nav button.active img{transform:none}.nav button.active span{color:#be185d}
 .nav img{width:52px;height:52px;object-fit:cover;border-radius:14px;display:block;margin:0 auto;mix-blend-mode:multiply}.nav button span{font-size:9px;font-weight:700;color:#7c3aed;line-height:1}
@@ -409,7 +409,7 @@ function showRoomPopup(){
     {id:"garden",label:"お庭",emoji:"🌸"},
     {id:"bedroom",label:"寝室",emoji:"🌙"}
   ];
-  var others=(currentTab==="talk"||currentTab==="gacha")?allRooms:allRooms.filter(function(r){return r.id!==currentRoom;});roomPop.style.left=others.length>=3?"8px":"88px";
+  var others=(screen.classList.contains("show")&&(currentTab==="talk"||currentTab==="gacha"))?allRooms:allRooms.filter(function(r){return r.id!==currentRoom;});roomPop.style.left=others.length>=3?"8px":"88px";
   roomPop.innerHTML=others.map(r=>{
     var _tz=getTimeZone();const thumb=r.id==="living"?(_tz==="night"?"bg_living_night.png":_tz==="evening"?"bg_living_evening.png":"bg_living_day.png"):_ROOM_THUMBS[r.id];
     const img=thumb?'<img src="'+thumb+'" style="width:100%;aspect-ratio:1;object-fit:cover;display:block">':'';
@@ -598,7 +598,7 @@ function getMealTimeSlot(){var h=(_cheatHour!==null)?_cheatHour:new Date().getHo
   var _mealSlot=getMealTimeSlot();
 if(!_mealSlot||!canEat()){
   var _mealMsg=!_mealSlot?"今はご飯の時間じゃないみたい🌙":(function(){var _tz=getTimeZone();var _msgs={morning:"昼ごはんの時間になったら食べようね🌤️",noon:"おやつか夕ごはんまで待ってね🍪",evening:"夕ごはんの時間になったら食べようね🌙",night:"今日のご飯は全部食べたね⭐️また明日の朝から始めようね☀️"};return _msgs[_tz]||"もうお腹いっぱいだよ！次の時間になったらまた食べようね♪";})();
-  screenCard.innerHTML='<div style="padding:24px;text-align:center"><h2 style="font-size:20px;font-weight:800;margin-bottom:16px">🍽️ ご飯をあげる</h2><div style="background:linear-gradient(135deg,#fdf2ff,#ede9fe);border-radius:20px;padding:32px 20px;box-shadow:0 4px 12px rgba(167,139,250,.15)"><img src="onakaippai.png" style="width:100%;max-width:280px;height:auto;display:block;margin:0 auto 12px"><div style="font-size:17px;font-weight:800;color:#7c3aed;margin-bottom:8px;white-space:nowrap">'+ _mealMsg+'</div></div></div>';
+  screenCard.innerHTML='<div style="padding:24px;text-align:center"><h2 style="font-size:20px;font-weight:800;margin-bottom:16px">🍽️ ご飯をあげる</h2><div style="background:linear-gradient(135deg,#fdf2ff,#ede9fe);border-radius:20px;padding:32px 20px;box-shadow:0 4px 12px rgba(167,139,250,.15)"><img src="onakaippai.png" style="width:100%;height:auto;display:block;margin:0 auto 12px"><div style="font-size:17px;font-weight:800;color:#7c3aed;margin-bottom:8px;white-space:nowrap;text-align:center">'+ _mealMsg+'</div></div></div>';
   return;
 }
 const isFull=hunger>=100;
@@ -612,7 +612,7 @@ const isFull=hunger>=100;
   html+="<div style=\"background:#eee;border-radius:8px;height:14px;overflow:hidden\"><div id=\"foodHungerBar\" style=\"width:"+pct+"%;background:"+barColor+";height:100%;border-radius:8px;transition:width 0.5s;box-shadow:0 0 6px rgba(0,0,0,.2)\"></div></div></div>";
   if(isFull){
     var _tz9=getTimeZone();var _nextMsg={morning:"昼ごはんの時間になったら食べようね🌤️",noon:"おやつか夕ごはんまで待ってね🍪",evening:"夕ごはんの時間になったら食べようね🌙",night:"今日のご飯は全部食べたね⭐また明日の朝から始めようね☀️"}[_tz9]||"次の時間になったらまた食べようね♪";
-    html+="<div style=\"text-align:center;padding:24px 16px;background:linear-gradient(135deg,#fde68a,#fbcfe8,#c4b5fd);border-radius:20px;margin:8px 0;box-shadow:0 8px 24px rgba(251,191,36,0.25)\"><div style=\"margin-bottom:6px;animation:gaPopIn 0.5s both\"><img src=\"onakaippai.png\" style=\"width:100%;max-width:280px;height:auto;border-radius:16px;margin:0 auto;display:block\"></div><div style=\"font-size:32px;margin-bottom:4px\">💛✨💛</div><div style=\"color:#7c3aed;font-size:18px;font-weight:900;margin-bottom:4px\">もこ、おなかいっぱい！</div><div style=\"color:#92400e;font-size:14px;font-weight:600\">"+_nextMsg+"</div></div>";
+    html+="<div style=\"text-align:center;padding:24px 16px;background:linear-gradient(135deg,#fde68a,#fbcfe8,#c4b5fd);border-radius:20px;margin:8px 0;box-shadow:0 8px 24px rgba(251,191,36,0.25)\"><div style=\"margin-bottom:6px;animation:gaPopIn 0.5s both\"><img src=\"onakaippai.png\" style=\"width:100%;height:auto;border-radius:16px;margin:0 auto;display:block\"></div><div style=\"font-size:32px;margin-bottom:4px\">💛✨💛</div><div style=\"color:#7c3aed;font-size:18px;font-weight:900;margin-bottom:4px\">もこ、おなかいっぱい！</div><div style=\"color:#92400e;font-size:14px;font-weight:600\">"+_nextMsg+"</div></div>";
   }else{
     html+="<div style=\"display:grid;grid-template-columns:1fr 1fr;gap:12px\">";
     foods.forEach(function(food){
