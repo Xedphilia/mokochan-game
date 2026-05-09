@@ -88,6 +88,7 @@ body.sleeping #bedroomSleepingVideo{opacity:1;z-index:2}
         <video id="bedroomReadingNightVideo" muted loop playsinline preload="none" src="videos/bedroom/reading_night.mp4"></video>
         <video id="bedroomSleepingVideo" muted loop playsinline preload="none" src="videos/bedroom/sleeping.mp4"></video>
         <video id="bedroomNightTouchVideo" muted playsinline preload="none" src="videos/bedroom/night_touch.mp4"></video>
+        <video id="bedroomNightTouch2Video" muted playsinline preload="none" src="videos/bedroom/night_touch2.mp4"></video>
         <video id="gachaIdleVideo" muted autoplay loop playsinline preload="none" src="videos/gacha/idle.mp4"></video>
         <video id="gachaSpin1Video" muted playsinline preload="none" src="videos/gacha/spin1.mp4"></video>
         <video id="gachaSpin2Video" muted playsinline preload="none" src="videos/gacha/spin2.mp4"></video>
@@ -139,6 +140,7 @@ const poster=document.getElementById("poster"),
   bedroomReadingNightVideo=document.getElementById("bedroomReadingNightVideo"),
   bedroomSleepingVideo=document.getElementById("bedroomSleepingVideo"),
   bedroomNightTouchVideo=document.getElementById("bedroomNightTouchVideo"),
+  bedroomNightTouch2Video=document.getElementById("bedroomNightTouch2Video"),
   gachaIdleVideo=document.getElementById("gachaIdleVideo"),
   gachaSpin1Video=document.getElementById("gachaSpin1Video"),
   gachaSpin2Video=document.getElementById("gachaSpin2Video"),
@@ -448,7 +450,7 @@ const HUNGER_NORMAL_MIN=40;
 // ===== タッチ反応 =====
 function playTouchReaction(){
   if(busy)return;
-  if(currentRoom==="bedroom"&&(getTimeZone()==="night"||getTimeZone()==="evening")){busy=true;var _ntv=bedroomNightTouchVideo;stopAllVideos();_ntv.loop=false;try{_ntv.currentTime=0;}catch(e){}_ntv.classList.add("active");_ntv.play().catch(function(){busy=false;returnToRoomIdle();});_ntv.addEventListener("ended",function _nth(){_ntv.removeEventListener("ended",_nth);_ntv.classList.remove("active");busy=false;returnToRoomIdle();});return;}if(currentRoom==="bedroom"&&(getTimeZone()==="morning"||getTimeZone()==="noon")){
+  if(currentRoom==="bedroom"&&(getTimeZone()==="night"||getTimeZone()==="evening")){var _btvs=[bedroomNightTouchVideo,bedroomNightTouch2Video].filter(Boolean);busy=true;var _ntv=_btvs[Math.floor(Math.random()*_btvs.length)];stopAllVideos();_ntv.loop=false;try{_ntv.currentTime=0;}catch(e){}_ntv.classList.add("active");_ntv.play().catch(function(){busy=false;returnToRoomIdle();});_ntv.addEventListener("ended",function _nth(){_ntv.removeEventListener("ended",_nth);_ntv.classList.remove("active");busy=false;returnToRoomIdle();});return;}if(currentRoom==="bedroom"&&(getTimeZone()==="morning"||getTimeZone()==="noon")){
     if(busy)return;
     busy=true;
     showLoadingThen(function(){busy=false;returnToRoomIdle();});
