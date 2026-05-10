@@ -1102,8 +1102,7 @@ navButtons.forEach(function(btn){
     var _wasGacha=document.body.classList.contains("gacha-open");
     closeAllScreens();
     setActive(tab);
-    if(tab==="food"&&_wasGacha){screen.classList.remove("show");showConfirmDialog("ご飯はモコちゃんがリビングに戻ったらにしようね🍼
-リビングに移動しますか？",function(){switchRoom("living");setTimeout(function(){if(currentRoom==="living")openScreen("food");},1500);},null);return;}
+    if(tab==="food"&&_wasGacha){screen.classList.remove("show");showConfirmDialog("ご飯はモコちゃんがリビングに戻ったらにしようね🍼\nリビングに移動しますか？",function(){switchRoom("living");setTimeout(function(){if(currentRoom==="living")openScreen("food");},1500);},null);return;}
     if(tab==="room"){
       if(currentTab==="talk"||currentTab==="gacha"){busy=false;window._mokoTTSPlaying=false;}
       currentTab="room";
